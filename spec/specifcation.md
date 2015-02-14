@@ -3,7 +3,6 @@
 
 ## Locked Branch
 A branch which cannot be directly committed to without peer review
-
 
 ## Proposal
 A branch of a locked branch with proposed new code
