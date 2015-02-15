@@ -69,7 +69,7 @@ vote           :=  1 if decision = "Accept"
 
 Where:
 <pre>
-min(x, y) := x if x <= y
+min(x, y) := x if x &lt;= y
           := y otherwise
 
 floor(x)  := x - (x % 1)
@@ -86,7 +86,7 @@ weighted_vote := ceil(config.score.requiredVotes - score * config.score.proposal
 
 Where:
 <pre>
-max(x, y) := x if x >= y
+max(x, y) := x if x &gt;= y
           := y otherwise
 
 ceil(x)   := x               if x % 1 = 0
