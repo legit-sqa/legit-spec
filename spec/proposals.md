@@ -30,29 +30,22 @@ filename := "proposal" / review
 review   := &lt;Addr-Spec as defined by <a href="http://www.ietf.org/rfc/rfc2822.txt">RFC2822</a>&gt;
 </pre>
 
-#### File Format
-Files within the PROPOSAL DIRECTORY shall contain any number of name value pairs, followed by text:
-
-<pre>
-file   := *(header) "\r\n" text
-header := name ":" value "\r\n"
-name   := &lt;Any letter, number or hyphen&gt;
-value  := &lt;Any (US-ASCII) CHAR, leading and trailing whitespace is ignored&gt;
-text   := &lt;Any (US-ASCII) CHAR)&gt;
-</pre>
-
 #### Proposal File
 When creating a PROPOSAL, the PROPOSER should create a file named "proposal" in the PROPOSAL DIRECTORY.
 
 ##### Headers
 <table width="100%">
 	<tr>
-		<th>Header</th>
+		<th width="100px">Header</th>
 		<th>Description</th>
 	</tr>
 	<tr>
 		<td>Proposer</td>
 		<td>The name and email address of the proposer, as specified by <a href="http://www.ietf.org/rfc/rfc2822.txt">RFC2822</a> <i>(required)</i></td>
+	</tr>
+	<tr>
+		<td>Votes</td>
+		<td>The numerical score of the number of WEIGHTED VOTES <i>(required)</i></td>
 	</tr>
 	<tr>
 		<td>Submitted-at</td>
@@ -61,6 +54,10 @@ When creating a PROPOSAL, the PROPOSER should create a file named "proposal" in 
 	<tr>
 		<td>Extension-of</td>
 		<td>Specifies the id of the PROPOSAL this extends <i>(required when this proposal is an extension)</i></td>
+	</tr>
+	<tr>
+		<td>Extended-by</td>
+		<td>This header may appear multiple times. It specifies the ID of a PROPOSAL which extends this proposal <i>(required when extension proposals for this proposal exist)</i></td>
 	</tr>
 	<tr>
 		<td>Fix-of</td>
@@ -81,50 +78,56 @@ When creating a PROPOSAL, the PROPOSER should create a file named "proposal" in 
 		
 </table>
 
+## Submitting a Proposal
 
-## Review of Proposal
+When submitting a PROPOSAL, a peer should:
 
+* Create the PROPOSAL DIRECTORY and fill the "proposal" file with their details, and the details of the proposal:
 
-### Review Process
-* A peer must have the required number of points before they are able to review a proposal (See Section 4 – User Credibility)
-* A peer who wishes to review a commit should create a file within the commit directory.
-* Peers may not edit another peer’s review
-* A peer may change their own review at any time by appending their new review to the file. They must not delete the old review.
+<pre>
+Proposer: Joe Bloggs &lt;joe.blogs@example.net&gt;
+Submitted-at: Mon, 22 Feb 2015, 16:59:00 +0000
+Votes: 0
+[Extension-of: ID]
+[Merge-of: ID]
+[Fix-of: ID]
 
+Text describing the proposal...
+</pre>
 
-### Review Vote
-* Reviews may contain an accept or reject vote
-* In order for a proposal to be accepted, it must reach the threshold defined in the configuration, this can be either:
-  * Percentage based
-  * Absolute net positive vote count
-* The Proposer Weight sets the required threshold for positive votes
-* Votes are weighted based on the Reviewers’ Weights
+* Update their USER FILE, incrementing the value of the `Proposals` Header by one.
 
+Both these changes should be in a single commit on the `.tracking` branch, with the message:
 
-## Accepting a Proposal
-* Any peer may merge an accepted proposal into the locked branch when it reaches the required threshold.
+`Submitted Proposal: <id>`
 
-
-## Weeding Rejected Proposals
-* A proposal that fails to secure the required weight after a certain amount of time, or which receives a threshold number of negative votes may be cleared from the system.
-* The Proposal’s Review Directory must be left unremoved
-
-
-## Creating Supplementary Proposals
-Once a proposal has been submitted it may only be approved or rejected, it cannot be amended. However new proposals may be made, based on it:
-
+## Types of Proposals
+All new PROPOSALS are based directly on the LOCKED BRANCH, however when they are based instead on another PROPOSAL, they must be one of the following types:
 
 ### Extensions
-Sometimes it may be desirable to make a proposal based upon another proposal, to be accepted when its parent is approved. When this occurs, an accepted extension proposal is only merged into the locked branch once its parent is approved.
+An **EXTENSION** is a PROPOSAL which is based on another PROPOSAL, and relies on features that it introduces. When an EXTENSION is APPROVED, it is *not* merged until all PROPOSALS below it are APPROVED.
 
- 
-
+As such, when a PROPOSAL is APPROVED, the client should also check if there are any APPROVED EXTENSIONS and MERGE them at the same time. 
 
 ### Fixes and Alternatives
-A fix proposal is intended to simply correct a proposal, as such it should:
-* Only include bugfixes
-* Endeavour not to change function names / API endpoints that may be used by other code
-* Not add new features
-When users review a proposal, they will be informed of alternative proposals, and encouraged to choose either/or.
+A **FIX** is a PROPOSAL which modifies features that another PROPOSAL introduces. A FIX does not need to be based on the PROPOSAL which it fixes.
 
-When an approved fix proposal is based upon a proposal, it shall be merged even if the proposal on which it is based has not been:
+#### Approving a Fix
+
+When a FIX is APPROVED, any other FIXES for the same PROPOSAL are automatically deemed to be REJECTED.
+
+##### The FIX is based on the PROPOSAL it fixes
+A PROPOSAL on which a FIX is based does *not* need to be APPROVED in order for a APPROVED FIX to be MERGED.
+
+##### The FIX is not based on the PROPOSAL it fixes
+A PROPOSAL on which a FIX is not based is automatically deemed to be REJECTED when the FIX is APPROVED.
+
+### Merges
+When MERGING an APPROVED PROPOSAL results in a merge conflict, any user may attempt to solve the merge, and submit it as a new **MERGE PROPOSAL**.
+
+A MERGE PROPOSAL must be a single commit, with the parents:
+
+* The head of the original PROPOSAL
+* The head of the LOCKED BRANCH OF the original PROPOSAL
+
+When a MERGE PROPOSAL is APPROVED, any other MERGE PROPOSALS for the same PROPOSAL are automatically deemed to be REJECTED.
