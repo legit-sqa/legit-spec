@@ -48,6 +48,18 @@ When creating a PROPOSAL, the PROPOSER should create a file named "proposal" in 
 		<td>The numerical score of the number of WEIGHTED VOTES <i>(required)</i></td>
 	</tr>
 	<tr>
+		<td>Status</td>
+		<td>
+			The status of the review. One of:
+			<ul>
+				<li>Open</li>
+				<li>Accepted</li>
+				<li>Rejected</li>
+			</ul>
+		 	<i>(required)</i>
+		</td>
+	</tr>
+	<tr>
 		<td>Submitted-at</td>
 		<td>The <a href="http://www.ietf.org/rfc/rfc2822.txt">RFC2822</a> timestamp at the time of submmiting the proposal <i>(required)</i></td>
 	</tr>
@@ -88,6 +100,7 @@ When submitting a PROPOSAL, a peer should:
 Proposer: Joe Bloggs &lt;joe.blogs@example.net&gt;
 Submitted-at: Mon, 22 Feb 2015, 16:59:00 +0000
 Votes: 0
+Status: Open
 [Extension-of: ID]
 [Merge-of: ID]
 [Fix-of: ID]
